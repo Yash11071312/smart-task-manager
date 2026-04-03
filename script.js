@@ -1,3 +1,16 @@
+const express = require("express");
+const cors = require("cors");
+
+const app = express();
+
+// ✅ IMPORTANT FIX
+app.use(cors({
+  origin: "https://yash11071312.github.io",
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+}));
+
+app.use(express.json());
 // ================= GLOBAL =================
 const API = "https://smart-task-manager-rdl4.onrender.com"; // ✅ FIXED
 
