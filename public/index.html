@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Smart Task Manager</title>
+  <!-- Modern Typography -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <!-- OCR Library -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+</head>
+<body>
+  <!-- Background Decorative Blobs -->
+  <div class="blob-wrapper">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+  </div>
+
+  <!-- Auth Section -->
+  <div id="authWrapper" class="auth-wrapper page">
+    <div id="authSection" class="container">
+      <h1>🔐 Welcome Back</h1>
+      <div class="input-box">
+        <input id="username" placeholder="Username" />
+        <input id="password" type="password" placeholder="Password" />
+        <div class="btn-group">
+          <button onclick="login()">Login</button>
+          <button onclick="signup()" class="secondary-btn">Signup</button>
+        </div>
+      </div>
+      <div class="theme-switch" onclick="toggleTheme()">🌓 Switch Theme</div>
+    </div>
+  </div>
+
+  <!-- App Section (Hidden until login) -->
+  <div id="appSection" style="display: none;"> <!-- .page class added by JS -->
+    <div class="main-container">
+      <!-- Left Panel: Study Companion -->
+      <div class="left-panel container">
+        <div class="header">
+          <h1>📅 Study Companion</h1>
+        </div>
+
+        <section class="study-section">
+          <h3>📸 OCR Timetable Scanner</h3>
+          <div class="drop-zone" id="ocrDropZone">
+            <p>Drag & Drop Timetable Image Here</p>
+            <span>or click to upload</span>
+            <input type="file" id="ocrUploadInput" accept="image/*" hidden />
+          </div>
+          <img id="ocrPreview" src="" alt="Preview" />
+          <button onclick="extractText()" id="ocrBtn" class="primary-btn" style="margin-top: 10px;">Extract Timetable</button>
+          <div id="ocrStatus" style="font-size: 0.8rem; margin-top: 5px; color: var(--accent-yellow);"></div>
+          <textarea id="timetableInput" placeholder="Extracted text will appear here..."></textarea>
+        </section>
+
+        <section class="study-section">
+          <h3>⏳ Focus Timer</h3>
+          <div class="timer-display" id="timer">25:00</div>
+          <div class="btn-group">
+            <button onclick="startTimer()" id="timerBtn">Start</button>
+            <button onclick="resetTimer()" class="secondary-btn">Reset</button>
+          </div>
+        </section>
+
+        <section class="study-section">
+          <h3>📊 Study Progress</h3>
+          <div class="stat">Focus Time: <span id="focusTime">0h</span></div>
+          <div class="progress-wrap">
+            <div id="studyProgressBar" class="progress-bar" style="width: 30%;"></div>
+          </div>
+        </section>
+
+        <section class="study-section" style="border-top: 1px solid var(--glass-border); padding-top: 20px;">
+          <button onclick="generateAIPlan()" id="generatePlanBtn" class="primary-btn" style="background: var(--primary-gradient)">✨ Generate AI Plan</button>
+          <div id="aiPlanOutput" class="ai-plan-card" style="display: none; margin-top: 15px;">
+            <div class="header" style="margin-bottom: 10px;">
+              <h4>Your Smart Plan</h4>
+              <button onclick="generateAIPlan()" class="edit-btn" title="Regenerate">🔄</button>
+            </div>
+            <div id="planContent"></div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Middle Panel: Task Manager -->
+      <div class="middle-panel container">
+        <div class="header">
+          <h1>🚀 Task Manager</h1>
+          <span id="userGreeting"></span>
+        </div>
+
+        <div id="dashboard" class="dashboard">
+          <div class="stat">Total Tasks: <span id="totalCount">0</span></div>
+          <div class="stat">Completed: <span id="doneCount">0</span></div>
+          <div class="progress-wrap">
+            <div id="progressBar" class="progress-bar"></div>
+          </div>
+        </div>
+
+        <div class="input-box">
+          <input id="taskInput" placeholder="Enter your task..." />
+          <div class="input-row">
+            <select id="priorityInput">
+              <option value="Low">Low</option>
+              <option value="Medium" selected>Medium</option>
+              <option value="High">High</option>
+            </select>
+            <input type="date" id="dateInput" />
+          </div>
+          <button onclick="addTask()" class="primary-btn">Add New Task</button>
+        </div>
+
+        <div class="filters">
+          <input type="text" id="searchInput" placeholder="🔍 Search tasks..." oninput="filterTasks()" />
+          <select id="filterType" onchange="filterTasks()">
+            <option value="all">All</option>
+            <option value="pending">Pending</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+
+        <ul id="taskList"></ul>
+        
+        <div class="footer-controls">
+          <span class="logout-link" onclick="logout()">Logout</span>
+          <button class="danger-btn" style="padding: 5px 10px; font-size: 0.8rem; flex: none;" onclick="clearAll()">Clear All</button>
+        </div>
+      </div>
+
+      <!-- Right Panel: Analytics & Performance -->
+      <div class="right-panel container">
+        <div class="header">
+          <h1>📊 Analytics</h1>
+        </div>
+
+        <section class="study-section">
+          <h3>🎯 Performance Score</h3>
+          <div class="score-circle-wrap" style="height: 150px;">
+            <div class="score-circle" id="scoreCircle">
+              <span id="scoreText">0</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="study-section">
+          <h3>⚖️ Task Priority</h3>
+          <div class="chart-box">
+            <canvas id="pieChart"></canvas>
+          </div>
+        </section>
+
+        <section class="study-section">
+          <h3>📈 Weekly Completion</h3>
+          <div class="chart-box">
+            <canvas id="barChart"></canvas>
+          </div>
+        </section>
+
+        <section class="study-section">
+          <h3>🔍 Insights</h3>
+          <div class="stat">In Progress: <span id="pendingCount">0</span></div>
+          <div class="stat">Deadlines: <span id="deadlineCount">0</span></div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <div id="toastContainer"></div>
+  <!-- Chart.js Library -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
