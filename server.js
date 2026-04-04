@@ -8,12 +8,12 @@ const taskRoutes = require('./taskRoutes');
 const app = express();
 
 app.use(express.json());
+// Only serve the public folder for frontend assets
 app.use(express.static("public"));
-app.use(express.static("."));
 
 if (!process.env.MONGO_URI) {
-    console.error("❌ Error: MONGO_URI is not defined in environment variables.");
-    process.exit(1);
+    console.warn("⚠️ Warning: MONGO_URI is not defined. Database features will not work.");
+    console.warn("Please add MONGO_URI to your Environment Variables on Render.");
 }
 
 // MongoDB Connection
@@ -21,7 +21,11 @@ mongoose.connect(process.env.MONGO_URI, {
     serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of hanging
     connectTimeoutMS: 10000,
 })
-    .then(() => console.log("✅ MongoDB Connected"))
+    .then(() => {
+        console.log("✅ MongoDB Connected");
+        // Start the cron job only after DB is connected
+        startCronJobs();
+    })
     .catch(err => console.error("❌ MongoDB Connection Error:", err));
 
 app.use('/api/auth', authRoutes);
@@ -29,21 +33,23 @@ app.use('/api/tasks', taskRoutes);
 
 // Phase 7: Reminder System logic
 const Task = require('./Task');
-cron.schedule('* * * * *', async () => {
-    try {
-        const now = new Date();
-        const inFiveMinutes = new Date(now.getTime() + 5 * 60000);
-        const tasks = await Task.find({
-            completed: false,
-            time: { $gte: now, $lte: inFiveMinutes }
-        });
-        if (tasks.length > 0) {
-            console.log(`⏰ Reminder for ${tasks.length} tasks triggered.`);
+function startCronJobs() {
+    cron.schedule('* * * * *', async () => {
+        try {
+            const now = new Date();
+            const inFiveMinutes = new Date(now.getTime() + 5 * 60000);
+            const tasks = await Task.find({
+                completed: false,
+                time: { $gte: now, $lte: inFiveMinutes }
+            });
+            if (tasks.length > 0) {
+                console.log(`⏰ Reminder for ${tasks.length} tasks triggered.`);
+            }
+        } catch (err) {
+            console.error("Cron Job Error:", err);
         }
-    } catch (err) {
-        console.error("Cron Job Error:", err);
-    }
-});
+    });
+}
 
 app.get('/api/reminders', async (req, res) => {
     try {

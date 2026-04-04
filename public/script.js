@@ -126,7 +126,7 @@ function resetTimer() {
 
 // ================= TASKS =================
 async function loadTasks() {
-    const res = await fetch("/api/tasks", { headers: { userid: userId } });
+    const res = await fetch("/api/tasks", { headers: { "userid": userId } });
     allTasks = await res.json();
     renderTasks();
 }
@@ -141,7 +141,7 @@ async function addTask() {
     await fetch("/api/tasks/add", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, text, time: timeVal, priority })
+        body: JSON.stringify({ userId: userId, text, time: timeVal, priority })
     });
     document.getElementById("taskInput").value = "";
     loadTasks();
