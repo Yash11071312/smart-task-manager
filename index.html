@@ -8,6 +8,86 @@
   <link rel="stylesheet" href="style.css">
   <!-- OCR Library -->
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <style>
+    /* --- Light Theme Visibility Fixes --- */
+    body.light-theme {
+      background: #f1f5f9;
+      color: #1e293b;
+    }
+    body.light-theme .container {
+      background: rgba(255, 255, 255, 0.8) !important;
+      border: 1px solid rgba(0, 0, 0, 0.1) !important;
+      color: #1e293b !important;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+    body.light-theme h1, body.light-theme h3, body.light-theme h4 {
+      color: #0f172a;
+    }
+    body.light-theme button.secondary-btn, 
+    body.light-theme .edit-btn, 
+    body.light-theme .delete-btn,
+    body.light-theme .logout-link,
+    body.light-theme .theme-switch {
+      color: #475569 !important;
+    }
+    body.light-theme .secondary-btn {
+      background: rgba(0, 0, 0, 0.05) !important;
+      border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    }
+    body.light-theme input, body.light-theme select, body.light-theme textarea {
+      background: white !important;
+      color: #1e293b !important;
+      border: 1px solid #cbd5e1 !important;
+    }
+    body.light-theme .task-text {
+      color: #334155;
+    }
+    body.light-theme .stat {
+      color: #64748b;
+    }
+    body.light-theme .blob-1, body.light-theme .blob-2 {
+      opacity: 0.3;
+    }
+
+    /* --- Mobile Responsive Glass Nav & Layout --- */
+    @media screen and (max-width: 992px) {
+      .main-container {
+        flex-direction: column !important;
+        gap: 20px;
+        padding: 10px;
+      }
+      .left-panel, .right-panel {
+        display: none !important; /* Hide side panels as requested */
+      }
+      .middle-panel {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+      }
+      
+      /* Create Glass Nav effect for Middle Panel Header on Mobile */
+      .middle-panel .header {
+        position: sticky;
+        top: 10px;
+        z-index: 1000;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        padding: 15px 20px;
+        margin-bottom: 25px;
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+      }
+      body.light-theme .middle-panel .header {
+        background: rgba(255, 255, 255, 0.6);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+      }
+      #appSection {
+        display: block !important;
+      }
+    }
+  </style>
 </head>
 <body>
   <!-- Background Decorative Blobs -->
