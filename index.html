@@ -16,12 +16,12 @@
     <div class="blob blob-2"></div>
   </div>
 
-  <!-- Auth Section -->
-  <div id="authWrapper" class="auth-wrapper page">
+  <div id="authWrapper" class="auth-wrapper">
     <div id="authSection" class="container">
       <h1>🔐 Welcome Back</h1>
       <div class="input-box">
-        <input id="username" placeholder="Username" />
+        <input id="authUsername" placeholder="Username (for signup)" />
+        <input id="authEmail" placeholder="Email" />
         <input id="password" type="password" placeholder="Password" />
         <div class="btn-group">
           <button onclick="login()">Login</button>
@@ -32,16 +32,61 @@
     </div>
   </div>
 
-  <!-- App Section (Hidden until login) -->
-  <div id="appSection" style="display: none;"> <!-- .page class added by JS -->
+  <div id="appSection" style="display: none;">
+    <div id="tasksView" class="view">
     <div class="main-container">
-      <!-- Left Panel: Study Companion -->
-      <div class="left-panel container">
+      <div class="middle-panel container">
         <div class="header">
-          <h1>📅 Study Companion</h1>
+          <h1>🚀 Tasks</h1>
+          <span id="userGreeting"></span>
         </div>
 
-        <section class="study-section">
+        <div id="dashboard" class="dashboard">
+          <div class="stat">Total Tasks: <span id="totalCount">0</span></div>
+          <div class="stat">Completed: <span id="doneCount">0</span></div>
+          <div class="progress-wrap">
+            <div id="progressBar" class="progress-bar"></div>
+          </div>
+        </div>
+
+        <div class="input-box">
+          <input id="taskInput" placeholder="Enter task..." />
+          <input type="datetime-local" id="timeInput" />
+          <button onclick="addTask()" class="primary-btn">Add Task</button>
+        </div>
+
+        <ul id="taskList"></ul>
+      </div>
+    </div>
+    </div>
+
+    <div id="studyView" class="view" style="display: none;">
+      <div class="container">
+        <h1>📅 Study Plan</h1>
+        <input id="subjectsInput" placeholder="Subjects (math, science...)" />
+        <input type="date" id="examDateInput" />
+        <button onclick="generatePlan()" class="primary-btn">Create Plan</button>
+        <div id="studyPlanOutput"></div>
+      </div>
+    </div>
+
+    <div id="analyticsView" class="view" style="display: none;">
+      <div class="container">
+        <h1>📊 Analytics</h1>
+        <div class="chart-box">
+           <canvas id="analyticsChart"></canvas>
+        </div>
+        <div id="analyticsStats"></div>
+      </div>
+    </div>
+
+    <nav class="bottom-nav">
+      <div onclick="switchView('tasks')">🏠 Tasks</div>
+      <div onclick="switchView('study')">📚 Study</div>
+      <div onclick="switchView('analytics')">📈 Stats</div>
+      <div onclick="logout()">🏃 Out</div>
+    </nav>
+  </div>
           <h3>📸 OCR Timetable Scanner</h3>
           <div class="drop-zone" id="ocrDropZone">
             <p>Drag & Drop Timetable Image Here</p>
