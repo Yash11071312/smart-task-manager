@@ -5,11 +5,11 @@ const app = express();
 app.use(express.json());
 // Serve static files (HTML, CSS, JS) from the 'public' folder
 app.use(express.static("public"));
+// Support files in the root directory for deployment flexibility
+app.use(express.static("."));
 
 // In-memory storage (Resets when server restarts)
-let users = []; // Array to store user objects: { username, password, tasks: [] }
-let currentUser = null; // Variable to track the currently logged-in user
-// Note: In a real app, use sessions or JWT to support multiple concurrent users.
+let users = []; 
 
 // --- Auth Routes ---
 
@@ -24,7 +24,6 @@ app.post("/signup", (req, res) => {
     return res.status(400).send("User already exists");
   }
 
-  // Store user with an empty tasks array
   users.push({ username, password, tasks: [] });
   res.send("User registered successfully");
 });
@@ -39,13 +38,11 @@ app.post("/login", (req, res) => {
     return res.status(401).send("Invalid username or password");
   }
   
-  currentUser = user; // Set the global currentUser to the found user
   res.json({ username: user.username }); // Return user data for the UI
 });
 
 // Logout user
 app.post("/logout", (req, res) => {
-  currentUser = null;
   res.send("Logged out");
 });
 
@@ -85,7 +82,8 @@ function optimizePlan(schedule) {
 
 // Generate AI Study Plan
 app.post("/generate-plan", (req, res) => {
-  if (!currentUser) return res.status(401).send("Unauthorized: Please login first");
+  const user = users.find(u => u.username === req.headers.user);
+  if (!user) return res.status(401).send("Unauthorized: Please login first");
   const { timetableText } = req.body;
 
   if (!timetableText) return res.status(400).send("Timetable text is required.");
@@ -101,17 +99,19 @@ app.post("/generate-plan", (req, res) => {
 
 // Get tasks for the logged-in user only
 app.get("/tasks", (req, res) => {
-  if (!currentUser) return res.status(401).send("Unauthorized: Please login first");
-  res.json(currentUser.tasks);
+  const user = users.find(u => u.username === req.headers.user);
+  if (!user) return res.status(401).send("Unauthorized: Please login first");
+  res.json(user.tasks);
 });
 
 // Add task to the current user's list
 app.post("/add", (req, res) => {
-  if (!currentUser) return res.status(401).send("Unauthorized: Please login first");
+  const user = users.find(u => u.username === req.headers.user);
+  if (!user) return res.status(401).send("Unauthorized: Please login first");
   const { text, priority, dueDate } = req.body;
   if (!text) return res.status(400).send("Task text is required");
 
-  currentUser.tasks.push({ 
+  user.tasks.push({ 
     text, 
     priority: priority || 'Medium', 
     dueDate: dueDate || 'No Date',
@@ -123,19 +123,27 @@ app.post("/add", (req, res) => {
 
 // Toggle task status
 app.put("/toggle/:id", (req, res) => {
-  if (!currentUser) return res.status(401).send("Unauthorized");
-  const task = currentUser.tasks[req.params.id];
-  if (task) task.completed = !task.completed;
-  res.send("Toggled");
+  const user = users.find(u => u.username === req.headers.user);
+  if (!user) return res.status(401).send("Unauthorized");
+  const taskId = parseInt(req.params.id);
+  const task = user.tasks[taskId];
+  if (task) {
+    task.completed = !task.completed;
+    res.send("Toggled");
+  } else {
+    res.status(404).send("Task not found");
+  }
 });
 
 // Update task details
 app.put("/update/:id", (req, res) => {
-  if (!currentUser) return res.status(401).send("Unauthorized");
+  const user = users.find(u => u.username === req.headers.user);
+  if (!user) return res.status(401).send("Unauthorized");
   const { text, priority, dueDate } = req.body;
-  if (currentUser.tasks[req.params.id]) {
-    currentUser.tasks[req.params.id] = { 
-      ...currentUser.tasks[req.params.id], 
+  const taskId = parseInt(req.params.id);
+  if (user.tasks[taskId]) {
+    user.tasks[taskId] = { 
+      ...user.tasks[taskId], 
       text, priority, dueDate 
     };
     res.send("Updated");
@@ -146,9 +154,11 @@ app.put("/update/:id", (req, res) => {
 
 // Mark task as complete
 app.patch("/complete/:id", (req, res) => {
-  if (!currentUser) return res.status(401).send("Unauthorized");
-  if (currentUser.tasks[req.params.id]) {
-    currentUser.tasks[req.params.id].completed = true;
+  const user = users.find(u => u.username === req.headers.user);
+  if (!user) return res.status(401).send("Unauthorized");
+  const taskId = parseInt(req.params.id);
+  if (user.tasks[taskId]) {
+    user.tasks[taskId].completed = true;
     res.send("Completed");
   } else {
     res.status(404).send("Task not found");
@@ -157,19 +167,27 @@ app.patch("/complete/:id", (req, res) => {
 
 // Delete task from the current user's list by index
 app.delete("/delete/:id", (req, res) => {
-  if (!currentUser) return res.status(401).send("Unauthorized: Please login first");
-  currentUser.tasks.splice(req.params.id, 1);
-  res.send("Deleted");
+  const user = users.find(u => u.username === req.headers.user);
+  if (!user) return res.status(401).send("Unauthorized: Please login first");
+  const taskId = parseInt(req.params.id);
+  if (taskId >= 0 && taskId < user.tasks.length) {
+    user.tasks.splice(taskId, 1);
+    res.send("Deleted");
+  } else {
+    res.status(404).send("Task index out of bounds");
+  }
 });
 
 // Clear all tasks for current user
 app.delete("/clear", (req, res) => {
-  if (!currentUser) return res.status(401).send("Unauthorized");
-  currentUser.tasks = [];
+  const user = users.find(u => u.username === req.headers.user);
+  if (!user) return res.status(401).send("Unauthorized");
+  user.tasks = [];
   res.send("Cleared");
 });
 
-app.listen(3000, () => {
-  console.log("🚀 Server running on http://localhost:3000");
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
   console.log("Important: Restart this server whenever you change server.js!");
 });

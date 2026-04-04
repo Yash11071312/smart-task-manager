@@ -1,9 +1,11 @@
-const API = "https://smart-task-manager-rdl4.onrender.com";
+// Global state and variables
+let allTasks = [];
+let loggedInUser = localStorage.getItem("taskUser") || null;
+const API = ""; // Use relative path for deployment
 
 let time = 25 * 60;
 let interval = null;
 
-// ================= THEME =================
 function toggleTheme() {
 document.body.classList.toggle("light-theme");
 }
@@ -45,13 +47,19 @@ interval = setInterval(() => {
 }
 
 function resetTimer() {
+playSound("click");
 clearInterval(interval);
 interval = null;
 time = 25 * 60;
 updateTimerDisplay();
 }
 
-document.addEventListener("DOMContentLoaded", updateTimerDisplay);
+// Initialize on load
+document.addEventListener("DOMContentLoaded", () => {
+    updateTimerDisplay();
+    if (loggedInUser) checkAuth();
+});
+
 
 // ================= SOUND =================
 function playSound(type) {
@@ -107,11 +115,14 @@ const res = await fetch(`${API}/login`, {
 
 if (res.ok) {
     const data = await res.json();
+    // Save session to localStorage so it persists on refresh
+    localStorage.setItem("taskUser", data.username);
 
     document.getElementById("authWrapper").style.display = "none";
     document.getElementById("appSection").style.display = "flex";
 
     document.getElementById("userGreeting").innerText = `Hi, ${data.username}!`;
+    if (typeof loadTasks === "function") loadTasks();
 } else {
     alert("Login failed");
 }
