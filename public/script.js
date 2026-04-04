@@ -1,6 +1,10 @@
 let allTasks = [];
-let userId = localStorage.getItem("userId") || null;
-let username = localStorage.getItem("username") || null;
+let userId = localStorage.getItem("userId");
+if (userId === "null" || userId === "undefined") userId = null;
+
+let username = localStorage.getItem("username");
+if (username === "null" || username === "undefined") username = null;
+
 const API = "";
 
 let pieChart, barChart;
