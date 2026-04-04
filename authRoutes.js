@@ -5,25 +5,25 @@ const User = require('./User');
 
 router.post('/signup', async (req, res) => {
     try {
-        const { email, password, username } = req.body;
+        const { username, password } = req.body;
+        if (!username || !password) return res.status(400).json({ message: "Username and password required" });
+        
         const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = new User({ email, username, password: hashedPassword });
+        const newUser = new User({ username, password: hashedPassword });
         await newUser.save();
         res.json({ message: "User registered successfully" });
     } catch (err) {
-        console.error("Signup Error:", err.message);
-        // Handle MongoDB Duplicate Key Error (code 11000)
         if (err.code === 11000) {
-            return res.status(400).json({ message: "Email already exists. Please login instead." });
+            return res.status(400).json({ message: "Username already exists." });
         }
-        res.status(400).json({ message: "Registration failed. Please check your details." });
+        res.status(400).json({ message: "Signup failed." });
     }
 });
 
 router.post('/login', async (req, res) => {
     try {
-        const { email, password } = req.body;
-        const user = await User.findOne({ email });
+        const { username, password } = req.body;
+        const user = await User.findOne({ username });
         if (user && await bcrypt.compare(password, user.password)) {
             res.json({ userId: user._id, username: user.username });
         } else {

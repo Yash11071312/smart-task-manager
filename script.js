@@ -14,11 +14,10 @@ function toggleTheme() {
 
 // ================= AUTH =================
 async function signup() {
-    const email = document.getElementById("authEmail")?.value;
-    const password = document.getElementById("authPassword")?.value;
     const usernameVal = document.getElementById("authUsername")?.value;
+    const password = document.getElementById("authPassword")?.value;
     
-    if (!email || !password || !usernameVal) {
+    if (!usernameVal || !password) {
         showToast("Please fill in all fields");
         return;
     }
@@ -27,7 +26,7 @@ async function signup() {
         const res = await fetch("/api/auth/signup", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({ email, password, username: usernameVal })
+            body: JSON.stringify({ username: usernameVal, password })
         });
         const data = await res.json();
         if (res.ok) {
@@ -41,10 +40,10 @@ async function signup() {
 }
 
 async function login() {
-    const email = document.getElementById("authEmail")?.value;
+    const usernameVal = document.getElementById("authUsername")?.value;
     const password = document.getElementById("authPassword")?.value;
 
-    if (!email || !password) {
+    if (!usernameVal || !password) {
         showToast("Please enter credentials");
         return;
     }
@@ -53,7 +52,7 @@ async function login() {
         const res = await fetch("/api/auth/login", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({ email, password })
+            body: JSON.stringify({ username: usernameVal, password })
         });
 
         if (res.ok) {
