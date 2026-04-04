@@ -1,12 +1,25 @@
 const express = require('express');
 const router = express.Router();
-const Task = require('./Task');
+const fs = require('fs');
+
+const TASKS_FILE = 'tasks.json';
+
+const getTasks = () => {
+    if (!fs.existsSync(TASKS_FILE)) return [];
+    return JSON.parse(fs.readFileSync(TASKS_FILE, 'utf8'));
+};
+
+const saveTasks = (tasks) => {
+    fs.writeFileSync(TASKS_FILE, JSON.stringify(tasks, null, 2));
+};
 
 router.get('/', async (req, res) => {
     try {
         const userId = req.headers.userid;
         if (!userId) return res.status(401).json({ message: "Unauthorized" });
-        const tasks = await Task.find({ userId }).sort({ time: 1 });
+        
+        const tasks = getTasks().filter(t => t.userId === userId);
+        tasks.sort((a, b) => new Date(a.time) - new Date(b.time));
         res.json(tasks);
     } catch (err) {
         console.error("Fetch Tasks Error:", err);
@@ -15,10 +28,18 @@ router.get('/', async (req, res) => {
 });
 
 router.post('/add', async (req, res) => {
-    const { userId, text, description, time, priority } = req.body;
     try {
-        const newTask = new Task({ userId, text, description, time, priority });
-        await newTask.save();
+        const { userId, text, description, time, priority } = req.body;
+        const tasks = getTasks();
+        const newTask = {
+            _id: Date.now().toString(),
+            userId, text, description, time, 
+            priority: priority || 'Medium', 
+            completed: false,
+            createdAt: new Date()
+        };
+        tasks.push(newTask);
+        saveTasks(tasks);
         res.json({ success: true, message: "Task added" });
     } catch (err) {
         res.status(400).json({ error: "Could not add task" });
@@ -27,14 +48,13 @@ router.post('/add', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
     try {
-        const task = await Task.findById(req.params.id);
-        if (task) {
-            task.completed = !task.completed;
-            await task.save();
-            res.json({ success: true });
-        } else {
-            res.status(404).send("Task not found");
-        }
+        const tasks = getTasks();
+        const index = tasks.findIndex(t => t._id === req.params.id);
+        if (index === -1) return res.status(404).send("Task not found");
+        
+        tasks[index].completed = !tasks[index].completed;
+        saveTasks(tasks);
+        res.json({ success: true });
     } catch (err) {
         res.status(400).send("Error updating task");
     }
@@ -42,7 +62,9 @@ router.put('/:id', async (req, res) => {
 
 router.delete('/:id', async (req, res) => {
     try {
-        await Task.findByIdAndDelete(req.params.id);
+        const tasks = getTasks();
+        const filtered = tasks.filter(t => t._id !== req.params.id);
+        saveTasks(filtered);
         res.json({ success: true, message: "Task deleted" });
     } catch (err) {
         res.status(400).send("Error deleting task");
