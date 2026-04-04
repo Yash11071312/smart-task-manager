@@ -11,8 +11,12 @@ router.post('/signup', async (req, res) => {
         await newUser.save();
         res.json({ message: "User registered successfully" });
     } catch (err) {
-        console.error("Signup Error:", err);
-        res.status(400).json({ message: "User registration failed: " + err.message });
+        console.error("Signup Error:", err.message);
+        // Handle MongoDB Duplicate Key Error (code 11000)
+        if (err.code === 11000) {
+            return res.status(400).json({ message: "Email already exists. Please login instead." });
+        }
+        res.status(400).json({ message: "Registration failed. Please check your details." });
     }
 });
 

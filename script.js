@@ -30,7 +30,11 @@ async function signup() {
             body: JSON.stringify({ email, password, username: usernameVal })
         });
         const data = await res.json();
-        showToast(data.message || "Signup completed");
+        if (res.ok) {
+            showToast(data.message || "Signup successful! You can now login.");
+        } else {
+            showToast(data.message || "Signup failed");
+        }
     } catch (err) {
         showToast("Signup failed");
     }
