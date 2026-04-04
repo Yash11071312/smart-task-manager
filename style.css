@@ -120,7 +120,7 @@ body {
 .app-view {
   display: none;
   width: 100%;
-  max-width: 1250px;
+  max-width: 1450px;
   animation: fadeIn 0.4s ease-out;
 }
 
@@ -173,7 +173,7 @@ body {
   .sidebar { display: none; }
   .mobile-nav { display: flex; }
   .main-container { 
-    padding: 20px 15px 120px 15px; 
+    padding: 15px 10px 100px 10px; 
   }
   .mobile-nav .nav-item { 
     display: flex; 
@@ -184,6 +184,9 @@ body {
   }
   .mobile-nav .nav-item span { font-size: 0.65rem; margin-top: 4px; opacity: 0.8; }
   .mobile-nav .nav-item.active { background: none; color: #6366f1; box-shadow: none; }
+  .container {
+    padding: 1.25rem;
+  }
 }
 /* Section Cleanup & Base Layout */
 .study-section { margin-bottom: 1.5rem; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.02); padding: 1.5rem; border-radius: 16px; text-align: left; }
@@ -396,7 +399,7 @@ li:hover { transform: translateY(-4px) scale(1.01); background: rgba(255, 255, 2
 
 /* Chart Box for fixed height */
 .chart-box {
-  height: 320px; /* Increased height to match wider laptop view */
+  height: 450px; /* Significantly increased height for better visibility on laptops */
   position: relative; /* For Chart.js responsiveness */
 }
 
