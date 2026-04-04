@@ -120,7 +120,7 @@ body {
 .app-view {
   display: none;
   width: 100%;
-  max-width: 1800px; /* Increased max-width for desktop */
+  max-width: 2000px; /* Further increased max-width for desktop */
   animation: fadeIn 0.4s ease-out;
 }
 
@@ -196,7 +196,7 @@ body {
 .study-section { margin-bottom: 1.5rem; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.02); padding: 1.5rem; border-radius: 16px; text-align: left; }
 .timer-display { font-size: 4rem; letter-spacing: 2px; margin: 1.5rem 0; font-weight: 600; text-align: center; font-family: monospace; }
 
-.container { background: var(--glass-bg); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid var(--glass-border); padding: 3.5rem; /* Increased default padding for desktop */ border-radius: 28px; width: 100%; text-align: center; box-shadow: var(--shadow), inset 0 0 20px rgba(255,255,255,0.05); max-height: 95vh; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none; animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+.container { background: var(--glass-bg); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid var(--glass-border); padding: 4rem; /* Increased default padding for desktop */ border-radius: 28px; width: 100%; text-align: center; box-shadow: var(--shadow), inset 0 0 20px rgba(255,255,255,0.05); max-height: 95vh; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none; animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
 .container::-webkit-scrollbar { display: none; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -416,7 +416,7 @@ li:hover { transform: translateY(-4px) scale(1.01); background: rgba(255, 255, 2
 
 /* Chart Box for fixed height */
 .chart-box {
-  height: 420px; /* Adjusted height for desktop charts */
+  height: 480px; /* Further adjusted height for desktop charts */
   width: 100%;
   position: relative; /* For Chart.js responsiveness */
 }
