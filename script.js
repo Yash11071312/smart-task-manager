@@ -1,7 +1,11 @@
 // Global state and variables
 let allTasks = [];
-let userId = localStorage.getItem("userId") || null;
-let username = localStorage.getItem("username") || null;
+let userId = localStorage.getItem("userId");
+if (userId === "null" || userId === "undefined") userId = null;
+
+let username = localStorage.getItem("username");
+if (username === "null" || username === "undefined") username = null;
+
 const API = "";
 
 let time = 25 * 60;
@@ -123,7 +127,7 @@ function resetTimer() {
 
 // ================= TASKS =================
 async function loadTasks() {
-    const res = await fetch("/api/tasks", { headers: { userId } });
+    const res = await fetch("/api/tasks", { headers: { "userid": userId } });
     allTasks = await res.json();
     renderTasks();
 }
@@ -138,7 +142,7 @@ async function addTask() {
     await fetch("/api/tasks/add", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, text, time: timeVal, priority })
+        body: JSON.stringify({ userId: userId, text, time: timeVal, priority })
     });
     document.getElementById("taskInput").value = "";
     loadTasks();
@@ -257,7 +261,7 @@ function generatePlan() {
 }
 
 async function checkReminders() {
-    const res = await fetch("/api/reminders", { headers: { userid: userId } });
+    const res = await fetch("/api/reminders", { headers: { "userid": userId } });
     if (res.ok) {
         const tasks = await res.json();
         tasks.forEach(t => { if (Notification.permission === "granted") new Notification("Task Reminder", { body: t.text }); });

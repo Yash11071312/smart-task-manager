@@ -10,6 +10,8 @@ const app = express();
 app.use(express.json());
 // Only serve the public folder for frontend assets
 app.use(express.static("public"));
+// Fallback to serve files from the root directory where index.html is located
+app.use(express.static(__dirname));
 
 if (!process.env.MONGO_URI) {
     console.warn("⚠️ Warning: MONGO_URI is not defined. Database features will not work.");
