@@ -87,45 +87,46 @@ let url = "";
 
 // ================= AUTH =================
 async function signup() {
-const username = document.getElementById("username").value;
-const password = document.getElementById("password").value;
+    const email = document.getElementById("authEmail").value;
+    const password = document.getElementById("authPassword").value;
+    const username = document.getElementById("authUsername").value;
+    
+    if (!email || !password || !username) {
+        alert("Please fill in all fields");
+        return;
+    }
 
-```
-const res = await fetch(`${API}/signup`, {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ username, password })
-});
+    const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ email, password, username })
+    });
 
-alert(await res.text());
-```
-
+    const message = await res.json();
+    alert(message.message || "Signup completed");
 }
 
 async function login() {
-const username = document.getElementById("username").value;
-const password = document.getElementById("password").value;
+    const email = document.getElementById("authEmail").value;
+    const password = document.getElementById("authPassword").value;
 
-```
-const res = await fetch(`${API}/login`, {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ username, password })
-});
+    if (!email || !password) {
+        alert("Please enter credentials");
+        return;
+    }
 
-if (res.ok) {
-    const data = await res.json();
-    // Save session to localStorage so it persists on refresh
-    localStorage.setItem("taskUser", data.username);
+    const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ email, password })
+    });
 
-    document.getElementById("authWrapper").style.display = "none";
-    document.getElementById("appSection").style.display = "flex";
-
-    document.getElementById("userGreeting").innerText = `Hi, ${data.username}!`;
-    if (typeof loadTasks === "function") loadTasks();
-} else {
-    alert("Login failed");
-}
-```
-
+    if (res.ok) {
+        const data = await res.json();
+        localStorage.setItem("userId", data.userId);
+        localStorage.setItem("username", data.username);
+        location.reload();
+    } else {
+        alert("Login failed");
+    }
 }
