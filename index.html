@@ -22,7 +22,7 @@
       <div class="input-box">
         <input id="authUsername" placeholder="Username (for signup)" />
         <input id="authEmail" placeholder="Email" />
-        <input id="password" type="password" placeholder="Password" />
+        <input id="authPassword" type="password" placeholder="Password" />
         <div class="btn-group">
           <button onclick="login()">Login</button>
           <button onclick="signup()" class="secondary-btn">Signup</button>
@@ -33,182 +33,115 @@
   </div>
 
   <div id="appSection" style="display: none;">
-    <div id="tasksView" class="view">
+    <!-- Sidebar Navigation for Desktop -->
+    <nav class="sidebar">
+      <div class="nav-logo">🚀 SMART</div>
+      <div class="nav-item active" onclick="switchView('homeView')">🏠 Home</div>
+      <div class="nav-item" onclick="switchView('studyView')">📚 Study</div>
+      <div class="nav-item" onclick="switchView('timerView')">⏱ Timer</div>
+      <div class="nav-item" onclick="switchView('analyticsView')">📊 Stats</div>
+      <div class="nav-spacer"></div>
+      <div class="nav-item logout" onclick="logout()">🏃 Logout</div>
+    </nav>
+
     <div class="main-container">
-      <div class="middle-panel container">
+      
+      <!-- Home View: Task Manager Only -->
+      <section id="homeView" class="app-view active-view">
+        <div class="container middle-panel">
         <div class="header">
-          <h1>🚀 Tasks</h1>
+            <h1>🚀 Task Manager</h1>
           <span id="userGreeting"></span>
         </div>
-
         <div id="dashboard" class="dashboard">
-          <div class="stat">Total Tasks: <span id="totalCount">0</span></div>
-          <div class="stat">Completed: <span id="doneCount">0</span></div>
+            <div class="stat">Total: <span id="totalCount">0</span></div>
+            <div class="stat">Done: <span id="doneCount">0</span></div>
           <div class="progress-wrap">
             <div id="progressBar" class="progress-bar"></div>
           </div>
         </div>
-
         <div class="input-box">
-          <input id="taskInput" placeholder="Enter task..." />
-          <input type="datetime-local" id="timeInput" />
-          <button onclick="addTask()" class="primary-btn">Add Task</button>
+            <input id="taskInput" placeholder="What needs to be done?" />
+            <div class="input-row">
+              <select id="priorityInput">
+                <option value="Low">Low</option>
+                <option value="Medium" selected>Medium</option>
+                <option value="High">High</option>
+              </select>
+              <input type="date" id="dateInput" />
+            </div>
+            <button onclick="addTask()" class="primary-btn">Add New Task</button>
         </div>
-
-        <ul id="taskList"></ul>
-      </div>
-    </div>
-    </div>
-
-    <div id="studyView" class="view" style="display: none;">
-      <div class="container">
-        <h1>📅 Study Plan</h1>
-        <input id="subjectsInput" placeholder="Subjects (math, science...)" />
-        <input type="date" id="examDateInput" />
-        <button onclick="generatePlan()" class="primary-btn">Create Plan</button>
-        <div id="studyPlanOutput"></div>
-      </div>
-    </div>
-
-    <div id="analyticsView" class="view" style="display: none;">
-      <div class="container">
-        <h1>📊 Analytics</h1>
-        <div class="chart-box">
-           <canvas id="analyticsChart"></canvas>
-        </div>
-        <div id="analyticsStats"></div>
-      </div>
-    </div>
-
-    <nav class="bottom-nav">
-      <div onclick="switchView('tasks')">🏠 Tasks</div>
-      <div onclick="switchView('study')">📚 Study</div>
-      <div onclick="switchView('analytics')">📈 Stats</div>
-      <div onclick="logout()">🏃 Out</div>
-    </nav>
-  </div>
-          <h3>📸 OCR Timetable Scanner</h3>
-          <div class="drop-zone" id="ocrDropZone">
-            <p>Drag & Drop Timetable Image Here</p>
-            <span>or click to upload</span>
-            <input type="file" id="ocrUploadInput" accept="image/*" hidden />
+          <div class="filters">
+            <input type="text" id="searchInput" placeholder="🔍 Search tasks..." oninput="filterTasks()" />
           </div>
-          <img id="ocrPreview" src="" alt="Preview" />
-          <button onclick="extractText()" id="ocrBtn" class="primary-btn" style="margin-top: 10px;">Extract Timetable</button>
-          <div id="ocrStatus" style="font-size: 0.8rem; margin-top: 5px; color: var(--accent-yellow);"></div>
-          <textarea id="timetableInput" placeholder="Extracted text will appear here..."></textarea>
-        </section>
+        <ul id="taskList"></ul>
+          <button class="danger-btn" style="margin-top:20px; width:auto; padding:8px 15px; font-size:0.8rem;" onclick="clearAll()">Clear All</button>
+        </div>
+      </section>
 
-        <section class="study-section">
-          <h3>⏳ Focus Timer</h3>
+      <!-- Study View: Planner and OCR -->
+      <section id="studyView" class="app-view">
+        <div class="container">
+          <h1>📚 Study Companion</h1>
+          <div class="study-section">
+            <h3>📅 Study Planner</h3>
+            <input id="subjectsInput" placeholder="Subjects (math, science...)" />
+            <input type="date" id="examDateInput" />
+            <button onclick="generatePlan()" class="primary-btn">Generate Plan</button>
+            <div id="studyPlanOutput" class="ai-plan-card"></div>
+          </div>
+          <div class="study-section">
+            <h3>📸 OCR Scanner</h3>
+            <div class="drop-zone" id="ocrDropZone">
+              <p>Upload Timetable Image</p>
+              <input type="file" id="ocrUploadInput" accept="image/*" hidden />
+            </div>
+            <button onclick="extractText()" id="ocrBtn" class="secondary-btn">Extract Text</button>
+            <textarea id="timetableInput" placeholder="Extracted text..."></textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- Timer View: Focus Timer -->
+      <section id="timerView" class="app-view">
+        <div class="container">
+          <h1>⏱ Focus Timer</h1>
           <div class="timer-display" id="timer">25:00</div>
           <div class="btn-group">
             <button onclick="startTimer()" id="timerBtn">Start</button>
             <button onclick="resetTimer()" class="secondary-btn">Reset</button>
           </div>
-        </section>
-
-        <section class="study-section">
-          <h3>📊 Study Progress</h3>
-          <div class="stat">Focus Time: <span id="focusTime">0h</span></div>
-          <div class="progress-wrap">
-            <div id="studyProgressBar" class="progress-bar" style="width: 30%;"></div>
-          </div>
-        </section>
-
-        <section class="study-section" style="border-top: 1px solid var(--glass-border); padding-top: 20px;">
-          <button onclick="generateAIPlan()" id="generatePlanBtn" class="primary-btn" style="background: var(--primary-gradient)">✨ Generate AI Plan</button>
-          <div id="aiPlanOutput" class="ai-plan-card" style="display: none; margin-top: 15px;">
-            <div class="header" style="margin-bottom: 10px;">
-              <h4>Your Smart Plan</h4>
-              <button onclick="generateAIPlan()" class="edit-btn" title="Regenerate">🔄</button>
-            </div>
-            <div id="planContent"></div>
-          </div>
-        </section>
-      </div>
-
-      <!-- Middle Panel: Task Manager -->
-      <div class="middle-panel container">
-        <div class="header">
-          <h1>🚀 Task Manager</h1>
-          <span id="userGreeting"></span>
         </div>
+      </section>
 
-        <div id="dashboard" class="dashboard">
-          <div class="stat">Total Tasks: <span id="totalCount">0</span></div>
-          <div class="stat">Completed: <span id="doneCount">0</span></div>
-          <div class="progress-wrap">
-            <div id="progressBar" class="progress-bar"></div>
-          </div>
-        </div>
-
-        <div class="input-box">
-          <input id="taskInput" placeholder="Enter your task..." />
-          <div class="input-row">
-            <select id="priorityInput">
-              <option value="Low">Low</option>
-              <option value="Medium" selected>Medium</option>
-              <option value="High">High</option>
-            </select>
-            <input type="date" id="dateInput" />
-          </div>
-          <button onclick="addTask()" class="primary-btn">Add New Task</button>
-        </div>
-
-        <div class="filters">
-          <input type="text" id="searchInput" placeholder="🔍 Search tasks..." oninput="filterTasks()" />
-          <select id="filterType" onchange="filterTasks()">
-            <option value="all">All</option>
-            <option value="pending">Pending</option>
-            <option value="completed">Completed</option>
-          </select>
-        </div>
-
-        <ul id="taskList"></ul>
-        
-        <div class="footer-controls">
-          <span class="logout-link" onclick="logout()">Logout</span>
-          <button class="danger-btn" style="padding: 5px 10px; font-size: 0.8rem; flex: none;" onclick="clearAll()">Clear All</button>
-        </div>
-      </div>
-
-      <!-- Right Panel: Analytics & Performance -->
-      <div class="right-panel container">
-        <div class="header">
+      <!-- Analytics View: Charts -->
+      <section id="analyticsView" class="app-view">
+        <div class="container">
           <h1>📊 Analytics</h1>
-        </div>
-
-        <section class="study-section">
-          <h3>🎯 Performance Score</h3>
-          <div class="score-circle-wrap" style="height: 150px;">
+          <div class="score-circle-wrap">
             <div class="score-circle" id="scoreCircle">
               <span id="scoreText">0</span>
             </div>
           </div>
-        </section>
-
-        <section class="study-section">
-          <h3>⚖️ Task Priority</h3>
           <div class="chart-box">
             <canvas id="pieChart"></canvas>
           </div>
-        </section>
-
-        <section class="study-section">
-          <h3>📈 Weekly Completion</h3>
-          <div class="chart-box">
+          <div class="chart-box" style="margin-top: 20px;">
             <canvas id="barChart"></canvas>
           </div>
-        </section>
+        </div>
+      </section>
 
-        <section class="study-section">
-          <h3>🔍 Insights</h3>
-          <div class="stat">In Progress: <span id="pendingCount">0</span></div>
-          <div class="stat">Deadlines: <span id="deadlineCount">0</span></div>
-        </section>
-      </div>
     </div>
+
+    <!-- Bottom Navigation for Mobile -->
+    <nav class="mobile-nav">
+      <div class="nav-item active" onclick="switchView('homeView')">🏠<span>Home</span></div>
+      <div class="nav-item" onclick="switchView('studyView')">📚<span>Study</span></div>
+      <div class="nav-item" onclick="switchView('timerView')">⏱<span>Timer</span></div>
+      <div class="nav-item" onclick="switchView('analyticsView')">📊<span>Stats</span></div>
+    </nav>
   </div>
 
   <div id="toastContainer"></div>
