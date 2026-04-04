@@ -2,8 +2,8 @@ require('dotenv').config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cron = require('node-cron');
-const authRoutes = require('./routes/authRoutes');
-const taskRoutes = require('./routes/taskRoutes');
+const authRoutes = require('./authRoutes');
+const taskRoutes = require('./taskRoutes');
 
 const app = express();
 
@@ -20,7 +20,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
 
 // Phase 7: Reminder System logic
-const Task = require('./models/Task');
+const Task = require('./Task');
 cron.schedule('* * * * *', async () => {
     const now = new Date();
     const inFiveMinutes = new Date(now.getTime() + 5 * 60000);
