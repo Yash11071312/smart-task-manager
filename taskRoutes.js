@@ -3,10 +3,15 @@ const router = express.Router();
 const Task = require('./Task');
 
 router.get('/', async (req, res) => {
-    const userId = req.headers.userid;
-    if (!userId) return res.status(401).send("Unauthorized");
-    const tasks = await Task.find({ userId }).sort({ time: 1 });
-    res.json(tasks);
+    try {
+        const userId = req.headers.userid;
+        if (!userId) return res.status(401).json({ message: "Unauthorized" });
+        const tasks = await Task.find({ userId }).sort({ time: 1 });
+        res.json(tasks);
+    } catch (err) {
+        console.error("Fetch Tasks Error:", err);
+        res.status(500).json({ message: "Failed to fetch tasks" });
+    }
 });
 
 router.post('/add', async (req, res) => {
